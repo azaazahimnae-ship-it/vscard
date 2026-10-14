@@ -1,0 +1,315 @@
+:root {
+  color-scheme: light;
+  --ink: #182333;
+  --muted: #697582;
+  --line: #e7ebee;
+  --accent: #225c55;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f5f6f7;
+  color: var(--ink);
+  font-family:
+    system-ui, -apple-system, "Segoe UI",
+    "Malgun Gothic", sans-serif;
+  line-height: 1.6;
+}
+
+main {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 22px;
+}
+
+.card {
+  width: min(100%, 440px);
+  margin: 0;
+  padding: 38px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  box-shadow: 0 20px 65px #1823330a;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 2.8px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.mark {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #dbe3e2;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+
+.portrait {
+  width: 92px;
+  height: 92px;
+  margin-bottom: 22px;
+  background: #f0f4f3;
+  border-radius: 24px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  color: #7b9390;
+}
+
+.portrait svg {
+  width: 48px;
+  height: 48px;
+}
+
+.portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+  letter-spacing: -1.3px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.role {
+  margin: 0;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.rule {
+  height: 1px;
+  margin: 30px 0 24px;
+  background: var(--line);
+}
+
+.contact {
+  display: grid;
+  gap: 19px;
+}
+
+.contact a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.contact a:hover .value {
+  text-decoration: underline;
+}
+
+.contact a > span:last-child {
+  min-width: 0;
+}
+
+.icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.label {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
+
+.value {
+  display: block;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  margin-top: 30px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #89929b;
+}
+
+.tools {
+  width: min(100%, 440px);
+  margin: 0;
+}
+
+button {
+  padding: 10px 16px;
+  border: 1px solid #d9e1df;
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #f0f4f3;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid #75bdb1;
+  outline-offset: 4px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hint {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.editor {
+  margin-top: 18px;
+  padding: 22px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+
+.editor[hidden] {
+  display: none;
+}
+
+.field {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field input {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #dce2e5;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: white;
+}
+
+.field input[type="file"] {
+  font-size: 12px;
+}
+
+.editor p {
+  margin: 8px 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.status {
+  min-height: 20px;
+  margin-top: 12px;
+  font-size: 12px;
+  text-align: center;
+  color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  main {
+    padding: 24px 16px;
+  }
+
+  .card {
+    width: 100%;
+    padding: 28px;
+  }
+
+  h1 {
+    font-size: 29px;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+  }
+
+  main {
+    min-height: 0;
+    padding: 0;
+  }
+
+  .tools {
+    display: none;
+  }
+
+  .card {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}
