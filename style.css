@@ -1,9 +1,13 @@
 :root {
   color-scheme: dark;
-  --ink: #edf2ed;
-  --muted: #a4afa5;
-  --line: #303d32;
-  --accent: #9bc498;
+  --background: #101b2b;
+  --card: #182438;
+  --panel: #25395b;
+  --ink: #ffffff;
+  --muted: #aec0d8;
+  --line: #345777;
+  --accent: #19b3d3;
+  --accent-hover: #40c8e3;
 }
 
 * {
@@ -12,7 +16,7 @@
 
 body {
   margin: 0;
-  background: #000000;
+  background: var(--background);
   color: var(--ink);
   font-family:
     system-ui, -apple-system, "Segoe UI",
@@ -35,11 +39,11 @@ main {
   width: min(100%, 440px);
   margin: 0;
   padding: 40px 32px;
-  background: #121712;
-  border: 1px solid #4c764b;
+  background: var(--card);
+  border: 1px solid var(--accent);
   border-radius: 26px;
   text-align: center;
-  box-shadow: 0 20px 65px #00000080;
+  box-shadow: 0 20px 65px #00000040;
   transition:
     transform 220ms ease,
     box-shadow 220ms ease;
@@ -48,8 +52,8 @@ main {
 .card:hover {
   transform: translateY(-8px);
   box-shadow:
-    0 28px 70px #00000099,
-    0 0 24px #4c764b33;
+    0 28px 70px #00000060,
+    0 0 24px #19b3d326;
 }
 
 /* 원형 프로필 사진 */
@@ -57,13 +61,13 @@ main {
   width: 112px;
   height: 112px;
   margin: 0 auto 24px;
-  background: #202b21;
-  border: 2px solid #4c764b;
+  background: var(--panel);
+  border: 2px solid var(--accent);
   border-radius: 50%;
   overflow: hidden;
   display: grid;
   place-items: center;
-  color: #9bb498;
+  color: var(--accent);
 }
 
 .portrait img {
@@ -79,21 +83,48 @@ main {
   height: 52px;
 }
 
-/* 이름과 직무 */
+/* 이름 */
 h1 {
   margin: 0 0 10px;
+  color: var(--ink);
   font-size: calc(32px + 1pt);
   letter-spacing: -1.3px;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
 
+/* 영문 직무 */
 .role {
   margin: 0;
   color: var(--accent);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 1px;
+  overflow-wrap: anywhere;
+}
+
+/* 새로 추가한 소개 문구 */
+.introduction {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.aspiration {
+  margin: 0;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.interests {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+  word-break: keep-all;
   overflow-wrap: anywhere;
 }
 
@@ -128,6 +159,8 @@ h1 {
 
 .contact a:hover .value {
   text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 4px;
 }
 
 .icon {
@@ -137,6 +170,7 @@ h1 {
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 12px;
+  background: var(--card);
   flex-shrink: 0;
   color: var(--accent);
 }
@@ -160,11 +194,12 @@ h1 {
 
 .value {
   display: block;
+  color: var(--ink);
   font-size: 14px;
   overflow-wrap: anywhere;
 }
 
-/* 이메일 복사와 전화하기 버튼 */
+/* 이메일·전화 버튼 */
 .contact-action-buttons {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -182,11 +217,10 @@ h1 {
   min-height: 48px;
   margin: 0;
   padding: 12px 10px;
-  border: 1px solid #4c764b;
-  color: #ffffff;
+  border: 1px solid var(--accent);
   font: inherit;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.4;
   text-align: center;
   text-decoration: none;
@@ -200,39 +234,42 @@ h1 {
 
 .contact-action {
   border-radius: 12px;
-  background: #365b35;
+  background: var(--accent);
+  color: #101b2b;
 }
 
 .contact-action--phone {
-  background: #182019;
+  background: var(--panel);
   color: var(--ink);
 }
 
-/* 네모난 GitHub 버튼 */
+/* GitHub 버튼 */
 .github-button {
   width: 100%;
   margin-top: 12px;
   padding: 12px 16px;
   border-radius: 4px;
-  background: #182019;
+  background: var(--panel);
   color: var(--ink);
 }
 
-/* 버튼에 마우스를 올리면 떠오르기 */
+/* 버튼 떠오르기 */
 .contact-action:not(:disabled):not([aria-disabled="true"]):hover,
 .github-button:hover {
   transform: translateY(-6px);
-  border-color: #9bc498;
-  box-shadow: 0 10px 22px #00000080;
+  border-color: var(--accent-hover);
+  box-shadow:
+    0 10px 22px #00000050,
+    0 0 14px #19b3d326;
 }
 
 .contact-action:not(:disabled):not([aria-disabled="true"]):hover {
-  background: #466f44;
+  background: var(--accent-hover);
 }
 
 .contact-action--phone:not([aria-disabled="true"]):hover,
 .github-button:hover {
-  background: #28392a;
+  background: #304c72;
 }
 
 .contact-action:not(:disabled):not([aria-disabled="true"]):active,
@@ -248,7 +285,7 @@ h1 {
 
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #9bc498;
+  outline: 3px solid var(--accent-hover);
   outline-offset: 4px;
 }
 
@@ -258,7 +295,7 @@ a:focus-visible {
   margin: 0;
   font-size: 12px;
   text-align: center;
-  color: var(--accent);
+  color: var(--accent-hover);
   overflow-wrap: anywhere;
 }
 
@@ -290,9 +327,17 @@ a:focus-visible {
     font-size: 12px;
     letter-spacing: 0.7px;
   }
+
+  .aspiration {
+    font-size: 15px;
+  }
+
+  .interests {
+    font-size: 13px;
+  }
 }
 
-/* 동작 줄이기 설정 대응 */
+/* 동작 줄이기 설정 */
 @media (prefers-reduced-motion: reduce) {
   .card,
   .contact-action,
