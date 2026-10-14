@@ -1,9 +1,9 @@
 :root {
-  color-scheme: light;
-  --ink: #182333;
-  --muted: #697582;
-  --line: #e7ebee;
-  --accent: #225c55;
+  color-scheme: dark;
+  --ink: #edf2ed;
+  --muted: #a4afa5;
+  --line: #303d32;
+  --accent: #9bc498;
 }
 
 * {
@@ -12,7 +12,7 @@
 
 body {
   margin: 0;
-  background: #f5f6f7;
+  background: #000000;
   color: var(--ink);
   font-family:
     system-ui, -apple-system, "Segoe UI",
@@ -34,10 +34,10 @@ main {
   width: min(100%, 440px);
   margin: 0;
   padding: 38px;
-  background: #fff;
-  border: 1px solid var(--line);
+  background: #121712;
+  border: 1px solid #4c764b;
   border-radius: 26px;
-  box-shadow: 0 20px 65px #1823330a;
+  box-shadow: 0 20px 65px #00000080;
 }
 
 .top {
@@ -57,7 +57,7 @@ main {
 .mark {
   width: 28px;
   height: 28px;
-  border: 1px solid #dbe3e2;
+  border: 1px solid #3a4a3c;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -68,12 +68,12 @@ main {
   width: 92px;
   height: 92px;
   margin-bottom: 22px;
-  background: #f0f4f3;
+  background: #202b21;
   border-radius: 24px;
   overflow: hidden;
   display: grid;
   place-items: center;
-  color: #7b9390;
+  color: #9bb498;
 }
 
 .portrait svg {
@@ -90,7 +90,7 @@ main {
 
 h1 {
   margin: 0 0 8px;
-  font-size: 32px;
+  font-size: calc(32px + 1pt);
   letter-spacing: -1.3px;
   line-height: 1.25;
   overflow-wrap: anywhere;
@@ -168,7 +168,7 @@ h1 {
   margin-top: 30px;
   font-size: 10px;
   letter-spacing: 2px;
-  color: #89929b;
+  color: #939f94;
 }
 
 .tools {
@@ -178,9 +178,9 @@ h1 {
 
 button {
   padding: 10px 16px;
-  border: 1px solid #d9e1df;
+  border: 1px solid #3a4a3c;
   border-radius: 12px;
-  background: white;
+  background: #121712;
   color: var(--ink);
   font: inherit;
   font-size: 13px;
@@ -188,12 +188,12 @@ button {
 }
 
 button:hover {
-  background: #f0f4f3;
+  background: #202b21;
 }
 
 button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: #365b35;
+  border-color: #4c764b;
   color: #fff;
 }
 
@@ -205,7 +205,7 @@ button:disabled {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
-  outline: 3px solid #75bdb1;
+  outline: 3px solid #9bc498;
   outline-offset: 4px;
 }
 
@@ -226,7 +226,7 @@ input:focus-visible {
 .editor {
   margin-top: 18px;
   padding: 22px;
-  background: white;
+  background: #121712;
   border: 1px solid var(--line);
   border-radius: 18px;
 }
@@ -247,12 +247,12 @@ input:focus-visible {
   width: 100%;
   margin-top: 6px;
   padding: 10px 12px;
-  border: 1px solid #dce2e5;
+  border: 1px solid #3a4a3c;
   border-radius: 9px;
   font: inherit;
   font-size: 14px;
   color: var(--ink);
-  background: white;
+  background: #121712;
 }
 
 .field input[type="file"] {
@@ -290,13 +290,13 @@ input:focus-visible {
   }
 
   h1 {
-    font-size: 29px;
+    font-size: calc(29px + 1pt);
   }
 }
 
 @media print {
   body {
-    background: white;
+    background: #121712;
   }
 
   main {
