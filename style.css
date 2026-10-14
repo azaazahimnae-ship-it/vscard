@@ -30,46 +30,26 @@ main {
   gap: 22px;
 }
 
+/* 카드 */
 .card {
   width: min(100%, 440px);
   margin: 0;
-  padding: 38px;
+  padding: 40px 32px;
   background: #121712;
   border: 1px solid #4c764b;
   border-radius: 26px;
   box-shadow: 0 20px 65px #00000080;
+  text-align: center;
 }
 
-.top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-}
-
-.eyebrow {
-  font-size: 11px;
-  letter-spacing: 2.8px;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-.mark {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #3a4a3c;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--accent);
-}
-
+/* 원형 프로필 사진: 중앙 배치 */
 .portrait {
-  width: 92px;
-  height: 92px;
-  margin-bottom: 22px;
+  width: 112px;
+  height: 112px;
+  margin: 0 auto 24px;
   background: #202b21;
-  border-radius: 24px;
+  border: 2px solid #4c764b;
+  border-radius: 50%;
   overflow: hidden;
   display: grid;
   place-items: center;
@@ -77,59 +57,69 @@ main {
 }
 
 .portrait svg {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
 }
 
 .portrait img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
 }
 
+/* 이름: 중앙 정렬 */
 h1 {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-size: calc(32px + 1pt);
   letter-spacing: -1.3px;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
 
+/* 직무: 중앙 정렬 */
 .role {
   margin: 0;
   color: var(--accent);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: 1px;
   overflow-wrap: anywhere;
 }
 
 .rule {
   height: 1px;
-  margin: 30px 0 24px;
+  margin: 28px 0 24px;
   background: var(--line);
 }
 
+/* 이메일·전화번호: 왼쪽 정렬 */
 .contact {
   display: grid;
   gap: 19px;
+  text-align: left;
 }
 
 .contact a {
   min-height: 44px;
   display: flex;
+  flex-direction: row;
   align-items: center;
+  justify-content: flex-start;
   gap: 14px;
   color: var(--ink);
+  text-align: left;
   text-decoration: none;
-}
-
-.contact a:hover .value {
-  text-decoration: underline;
 }
 
 .contact a > span:last-child {
   min-width: 0;
+  flex: 1;
+}
+
+.contact a:hover .value {
+  text-decoration: underline;
 }
 
 .icon {
@@ -140,6 +130,7 @@ h1 {
   border: 1px solid var(--line);
   border-radius: 12px;
   flex-shrink: 0;
+  color: var(--accent);
 }
 
 .icon svg {
@@ -152,6 +143,7 @@ h1 {
 
 .label {
   display: block;
+  margin-bottom: 3px;
   color: var(--muted);
   font-size: 10px;
   letter-spacing: 1.5px;
@@ -164,16 +156,16 @@ h1 {
   overflow-wrap: anywhere;
 }
 
-.footer {
-  margin-top: 30px;
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: #939f94;
+/* 연락처 버튼 */
+.contact-action-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 26px;
 }
 
-.tools {
-  width: min(100%, 440px);
-  margin: 0;
+.contact-action {
+  min-width: 0;
 }
 
 button {
@@ -194,12 +186,12 @@ button:hover {
 button.primary {
   background: #365b35;
   border-color: #4c764b;
-  color: #fff;
+  color: #ffffff;
 }
 
 button:disabled {
   opacity: 0.6;
-  cursor: wait;
+  cursor: default;
 }
 
 button:focus-visible,
@@ -209,76 +201,19 @@ input:focus-visible {
   outline-offset: 4px;
 }
 
-.toolbar {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.hint {
-  margin: 12px 0 0;
-  text-align: center;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.editor {
-  margin-top: 18px;
-  padding: 22px;
-  background: #121712;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-}
-
-.editor[hidden] {
-  display: none;
-}
-
-.field {
-  display: block;
-  margin-bottom: 14px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.field input {
-  display: block;
-  width: 100%;
-  margin-top: 6px;
-  padding: 10px 12px;
-  border: 1px solid #3a4a3c;
-  border-radius: 9px;
-  font: inherit;
-  font-size: 14px;
-  color: var(--ink);
-  background: #121712;
-}
-
-.field input[type="file"] {
-  font-size: 12px;
-}
-
-.editor p {
-  margin: 8px 0 16px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
 .status {
-  min-height: 20px;
-  margin-top: 12px;
+  margin: 0;
   font-size: 12px;
   text-align: center;
   color: var(--accent);
+  overflow-wrap: anywhere;
 }
 
+.status:empty {
+  display: none;
+}
+
+/* 모바일 */
 @media (max-width: 480px) {
   main {
     padding: 24px 16px;
@@ -286,14 +221,25 @@ input:focus-visible {
 
   .card {
     width: 100%;
-    padding: 28px;
+    padding: 32px 24px;
+  }
+
+  .portrait {
+    width: 104px;
+    height: 104px;
   }
 
   h1 {
     font-size: calc(29px + 1pt);
   }
+
+  .role {
+    font-size: 12px;
+    letter-spacing: 0.7px;
+  }
 }
 
+/* 인쇄 */
 @media print {
   body {
     background: #121712;
@@ -304,7 +250,7 @@ input:focus-visible {
     padding: 0;
   }
 
-  .tools {
+  .status {
     display: none;
   }
 

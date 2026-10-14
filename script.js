@@ -2,50 +2,39 @@
 
 function initializeBusinessCard() {
   const $ = id => document.getElementById(id);
+  const card = document.querySelector(".card");
 
-  const placeholder =
-    '<svg aria-hidden="true" viewBox="0 0 48 48" fill="none" ' +
-    'stroke="currentColor" stroke-width="1.6">' +
-    '<circle cx="24" cy="17" r="8"/>' +
-    '<path d="M8 41c0-10 7-16 16-16s16 6 16 16"/></svg>';
+  if (!card) return;
 
-  const announce = message => {
+  // 같은 페이지에서 중복 실행 방지
+  if (card.dataset.businessCardReady === "true") return;
+  card.dataset.businessCardReady = "true";
+
+  function announce(message) {
     const status = $("status");
-
-    if (status) {
-      status.textContent = message;
-    }
-  };
-
-  const fields = [
-    ["nameInput", "cardName"],
-    ["roleInput", "cardRole"],
-    ["emailInput", "cardEmail"],
-    ["phoneInput", "cardPhone"]
-  ];
-
-  function fillForm() {
-    for (const [inputId, cardId] of fields) {
-      const input = $(inputId);
-      const card = $(cardId);
-
-      if (input && card) {
-        input.value = card.textContent.trim();
-      }
-    }
+    if (status) status.textContent = message;
   }
 
-  let photoVersion = 0;
+  const placeholder = `
+    <svg aria-hidden="true" viewBox="0 0 48 48"
+      fill="none" stroke="currentColor" stroke-width="1.6">
+      <circle cx="24" cy="17" r="8"></circle>
+      <path d="M8 41c0-10 7-16 16-16s16 6 16 16"></path>
+    </svg>
+  `;
 
-  // 카드 떠오르기 효과와 연락처 버튼 스타일
-  const styleId = "businessCardInteractionStyles";
-  let style = $(styleId);
-
-  if (!style) {
-    style = document.createElement("style");
-    style.id = styleId;
-    document.head.append(style);
+  // 이전 JS에서 생성한 효과 스타일 제거
+  for (const id of [
+    "cardInteractionStyles",
+    "contactButtonStyles",
+    "businessCardInteractionStyles"
+  ]) {
+    $(id)?.remove();
   }
+
+  // 다른 CSS보다 우선 적용되는 카드·버튼 효과
+  const style = document.createElement("style");
+  style.id = "businessCardInteractionStyles";
 
   style.textContent = `
     .card {
@@ -54,23 +43,22 @@ function initializeBusinessCard() {
         box-shadow 220ms ease;
     }
 
-    @media (hover: hover) and (pointer: fine) {
-      .card:hover {
-        transform: translateY(-8px);
-        box-shadow:
-          0 28px 70px #00000099,
-          0 0 24px #4c764b33;
-      }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow:
+        0 28px 70px #00000099,
+        0 0 24px #4c764b33;
     }
 
-    .contact-action-buttons {
+    #contactActionButtons {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
       margin-top: 26px;
+      overflow: visible;
     }
 
-    .contact-action-buttons .contact-action {
+    #contactActionButtons > .contact-action {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -88,46 +76,64 @@ function initializeBusinessCard() {
       text-align: center;
       text-decoration: none;
       cursor: pointer;
+
+      transform: translateY(0) !important;
       transition:
+        transform 180ms ease,
+        box-shadow 180ms ease,
         background-color 180ms ease,
-        border-color 180ms ease;
+        border-color 180ms ease !important;
     }
 
-    .contact-action-buttons .contact-action--phone {
+    #contactActionButtons > .contact-action--phone {
       background: #182019;
       color: #edf2ed;
     }
 
-    @media (hover: hover) {
-      .contact-action-buttons .contact-action:hover {
-        background: #466f44;
-        border-color: #9bc498;
-      }
-
-      .contact-action-buttons .contact-action--phone:hover {
-        background: #28392a;
-      }
+    #contactActionButtons > .contact-action:not(:disabled):hover {
+      transform: translateY(-6px) !important;
+      background: #466f44;
+      border-color: #9bc498;
+      box-shadow: 0 10px 22px #00000080 !important;
     }
 
-    .contact-action-buttons .contact-action:focus-visible {
+    #contactActionButtons > .contact-action--phone:hover {
+      background: #28392a;
+    }
+
+    #contactActionButtons > .contact-action:not(:disabled):active {
+      transform: translateY(-2px) !important;
+    }
+
+    #contactActionButtons > .contact-action:focus-visible {
       outline: 3px solid #9bc498;
       outline-offset: 4px;
     }
 
-    .contact-action-buttons .contact-action:disabled,
-    .contact-action-buttons .contact-action[aria-disabled="true"] {
+    #contactActionButtons > .contact-action:disabled,
+    #contactActionButtons > .contact-action[aria-disabled="true"] {
       opacity: 0.5;
       cursor: default;
+      transform: none !important;
+      box-shadow: none !important;
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .card,
-      .contact-action-buttons .contact-action {
+      .card {
         transition: none;
       }
 
       .card:hover {
         transform: none;
+      }
+
+      #contactActionButtons > .contact-action {
+        transition: none !important;
+      }
+
+      #contactActionButtons > .contact-action:hover,
+      #contactActionButtons > .contact-action:active {
+        transform: none !important;
       }
     }
 
@@ -137,17 +143,26 @@ function initializeBusinessCard() {
         transform: none;
         box-shadow: none;
       }
+
+      #contactActionButtons > .contact-action,
+      #contactActionButtons > .contact-action:hover,
+      #contactActionButtons > .contact-action:active {
+        transform: none !important;
+        box-shadow: none !important;
+      }
     }
   `;
 
-  // ク립보드 복사
+  document.head.append(style);
+
+  // 이메일 복사
   async function copyText(text) {
     if (window.isSecureContext && navigator.clipboard?.writeText) {
       try {
         await navigator.clipboard.writeText(text);
         return;
       } catch {
-        // API가 실패하면 대체 복사 방법을 시도합니다.
+        // 대체 복사 방법 시도
       }
     }
 
@@ -170,7 +185,7 @@ function initializeBusinessCard() {
         typeof document.execCommand !== "function" ||
         !document.execCommand("copy")
       ) {
-        throw new Error("Clipboard copy failed");
+        throw new Error("Copy failed");
       }
     } finally {
       textarea.remove();
@@ -184,14 +199,13 @@ function initializeBusinessCard() {
     }
   }
 
-  // 이메일 주소와 복사 버튼이 함께 사용하는 함수
   async function copyEmail(event) {
     event.preventDefault();
 
     const email = $("cardEmail")?.textContent.trim();
 
     if (!email) {
-      announce("명함 수정에서 이메일 주소를 입력해 주세요.");
+      announce("복사할 이메일 주소가 없습니다.");
       return;
     }
 
@@ -209,19 +223,19 @@ function initializeBusinessCard() {
   const emailLink = $("emailLink");
   const phoneLink = $("phoneLink");
 
-  // 이메일 주소를 클릭해도 복사됩니다.
   if (emailLink) {
     emailLink.title = "클릭하여 이메일 주소 복사";
     emailLink.addEventListener("click", copyEmail);
   }
 
-  // 연락처 아래 버튼 생성
+  // 연락처 버튼을 확실하게 새로 생성
   const contactArea =
     emailLink?.closest(".contact") ||
-    phoneLink?.closest(".contact");
+    phoneLink?.closest(".contact") ||
+    card.querySelector(".contact");
 
-  let emailCopyButton = null;
-  let callButton = null;
+  let emailButton = null;
+  let phoneButton = null;
 
   if (contactArea) {
     let buttonArea = $("contactActionButtons");
@@ -229,380 +243,85 @@ function initializeBusinessCard() {
     if (!buttonArea) {
       buttonArea = document.createElement("div");
       buttonArea.id = "contactActionButtons";
-      contactArea.insertAdjacentElement("afterend", buttonArea);
     }
 
     buttonArea.className = "contact-action-buttons";
 
-    // 기존에 저장된 버튼이 있으면 새 버튼으로 교체
-    // 이메일 복사는 링크 대신 button 요소 사용
-    emailCopyButton = document.createElement("button");
-    emailCopyButton.type = "button";
-    emailCopyButton.className = "contact-action";
-    emailCopyButton.textContent = "이메일 복사";
-    emailCopyButton.title = "클릭하여 이메일 주소 복사";
-    emailCopyButton.addEventListener("click", copyEmail);
+    // 연락처 바로 아래로 배치
+    contactArea.insertAdjacentElement("afterend", buttonArea);
 
-    callButton = document.createElement("a");
-    callButton.className =
+    emailButton = document.createElement("button");
+    emailButton.type = "button";
+    emailButton.className = "contact-action";
+    emailButton.textContent = "이메일 복사";
+    emailButton.addEventListener("click", copyEmail);
+
+    phoneButton = document.createElement("a");
+    phoneButton.className =
       "contact-action contact-action--phone";
-    callButton.textContent = "전화하기";
+    phoneButton.textContent = "전화하기";
 
-    buttonArea.replaceChildren(emailCopyButton, callButton);
+    buttonArea.replaceChildren(emailButton, phoneButton);
   }
 
-  // 현재 연락처를 버튼에 반영
-  function updateContactButtons() {
+  function updateContactLinks() {
     const email = $("cardEmail")?.textContent.trim() || "";
+    const phone = ($("cardPhone")?.textContent || "")
+      .replace(/[^+0-9]/g, "");
 
-    const phone =
-      ($("cardPhone")?.textContent || "")
-        .trim()
-        .replace(/[^+0-9]/g, "");
-
-    if (emailCopyButton) {
-      emailCopyButton.disabled = !email;
+    if (emailLink) {
+      if (email) {
+        emailLink.href = "mailto:" + encodeURIComponent(email);
+      } else {
+        emailLink.removeAttribute("href");
+      }
     }
 
-    if (callButton) {
+    if (emailButton) emailButton.disabled = !email;
+
+    for (const link of [phoneLink, phoneButton]) {
+      if (!link) continue;
+
       if (phone) {
-        callButton.href = "tel:" + phone;
-        callButton.removeAttribute("aria-disabled");
+        link.href = "tel:" + phone;
+        link.removeAttribute("aria-disabled");
       } else {
-        callButton.removeAttribute("href");
-        callButton.setAttribute("aria-disabled", "true");
+        link.removeAttribute("href");
+        link.setAttribute("aria-disabled", "true");
       }
     }
   }
 
-  if (callButton) {
-    callButton.addEventListener("click", event => {
-      updateContactButtons();
+  for (const link of [phoneLink, phoneButton]) {
+    if (!link) continue;
 
-      if (callButton.getAttribute("aria-disabled") === "true") {
+    link.addEventListener("click", event => {
+      updateContactLinks();
+
+      if (link.getAttribute("aria-disabled") === "true") {
         event.preventDefault();
-        announce("명함 수정에서 전화번호를 입력해 주세요.");
+        announce("전화번호를 입력해 주세요.");
       }
     });
   }
 
-  updateContactButtons();
-  fillForm();
+  updateContactLinks();
 
-  // 기본 프로필 사진 로딩 실패 처리
-  const portraitContainer = $("portrait");
-  const initialPhoto = portraitContainer?.querySelector("img");
+  // 프로필 사진을 찾지 못하면 기본 아이콘 표시
+  const portrait = $("portrait");
+  const initialPhoto = portrait?.querySelector("img");
 
   if (initialPhoto) {
-    const initialVersion = photoVersion;
-
     const handleFailure = () => {
-      if (
-        photoVersion !== initialVersion ||
-        !initialPhoto.isConnected
-      ) {
-        return;
-      }
-
-      portraitContainer.innerHTML = placeholder;
-
-      announce(
-        "dog1.jpg를 찾지 못했습니다. HTML과 같은 폴더에 있는지, " +
-        "확장자가 맞는지 확인하거나 명함 수정에서 사진을 선택하세요."
-      );
+      if (!initialPhoto.isConnected) return;
+      portrait.innerHTML = placeholder;
     };
-
-    initialPhoto.addEventListener("error", handleFailure, {
-      once: true
-    });
-
-    if (initialPhoto.complete && !initialPhoto.naturalWidth) {
-      handleFailure();
-    }
+    initialPhoto.addEventListener("error", handleFailure, { once: true });
+    if (initialPhoto.complete && !initialPhoto.naturalWidth) handleFailure();
   }
 
-  // 편집창 열기 / 닫기
-  const editToggle = $("editToggle");
-  const editor = $("editor");
-
-  if (editToggle && editor) {
-    editToggle.addEventListener("click", () => {
-      const open = editor.hidden;
-
-      editor.hidden = !open;
-      editToggle.setAttribute("aria-expanded", String(open));
-
-      if (open) {
-        fillForm();
-        $("nameInput")?.focus();
-      }
-    });
-  }
-
-  // 명함 정보 적용
-  if (editor) {
-    editor.addEventListener("submit", event => {
-      event.preventDefault();
-
-      if (
-        fields.some(
-          ([inputId, cardId]) => !$(inputId) || !$(cardId)
-        )
-      ) {
-        announce("HTML의 입력창과 명함 요소 ID를 확인해 주세요.");
-        return;
-      }
-
-      if (fields.some(([id]) => !$(id).value.trim())) {
-        announce("모든 정보를 입력해 주세요.");
-        return;
-      }
-
-      for (const [inputId, cardId] of fields) {
-        $(cardId).textContent = $(inputId).value.trim();
-      }
-
-      if (emailLink) {
-        emailLink.href =
-          "mailto:" +
-          encodeURIComponent($("cardEmail").textContent);
-      }
-
-      if (phoneLink) {
-        phoneLink.href =
-          "tel:" +
-          $("cardPhone").textContent.replace(/[^+0-9]/g, "");
-      }
-
-      updateContactButtons();
-
-      document.title =
-        $("cardName").textContent + " · 웹명함";
-
-      const image = portraitContainer?.querySelector("img");
-
-      if (image) {
-        image.alt =
-          $("cardName").textContent + " 프로필 사진";
-      }
-
-      announce("적용했습니다. HTML 다운로드를 눌러 저장하세요.");
-    });
-  }
-
-  // 사진 선택 및 변환
-  const photoInput = $("photoInput");
-  const downloadButton = $("download");
-
-  if (photoInput && portraitContainer) {
-    photoInput.addEventListener("change", async event => {
-      const file = event.target.files?.[0];
-
-      if (!file) return;
-
-      if (
-        !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
-        file.size > 10 * 1024 * 1024
-      ) {
-        announce("10MB 이하의 JPG, PNG, WebP 이미지를 선택해 주세요.");
-        photoInput.value = "";
-        return;
-      }
-
-      const version = ++photoVersion;
-
-      if (downloadButton) {
-        downloadButton.disabled = true;
-      }
-
-      try {
-        const data = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-
-          reader.onload = () => resolve(reader.result);
-
-          reader.onerror = () => reject(
-            reader.error || new Error("File read failed")
-          );
-
-          reader.onabort = () => reject(
-            new Error("File read aborted")
-          );
-
-          reader.readAsDataURL(file);
-        });
-
-        const image = new Image();
-
-        await new Promise((resolve, reject) => {
-          image.onload = resolve;
-
-          image.onerror = () => reject(
-            new Error("Image load failed")
-          );
-
-          image.src = data;
-        });
-
-        if (version !== photoVersion) return;
-
-        const canvas = document.createElement("canvas");
-
-        const side = Math.min(
-          640,
-          image.naturalWidth,
-          image.naturalHeight
-        );
-
-        if (side <= 0) {
-          throw new Error("Invalid image size");
-        }
-
-        canvas.width = side;
-        canvas.height = side;
-
-        const context = canvas.getContext("2d");
-
-        if (!context) {
-          throw new Error("Canvas unavailable");
-        }
-
-        const crop = Math.min(
-          image.naturalWidth,
-          image.naturalHeight
-        );
-
-        context.drawImage(
-          image,
-          (image.naturalWidth - crop) / 2,
-          (image.naturalHeight - crop) / 2,
-          crop,
-          crop,
-          0,
-          0,
-          side,
-          side
-        );
-
-        const portrait = new Image();
-
-        portrait.src = canvas.toDataURL("image/png");
-
-        portrait.alt =
-          ($("cardName")?.textContent.trim() || "사용자") +
-          " 프로필 사진";
-
-        portraitContainer.replaceChildren(portrait);
-
-        announce(
-          "사진을 적용했습니다. 다운로드하면 사진도 함께 저장됩니다."
-        );
-      } catch {
-        if (version === photoVersion) {
-          announce(
-            "이미지를 읽지 못했습니다. 다른 사진을 선택해 주세요."
-          );
-        }
-      } finally {
-        if (version === photoVersion) {
-          if (downloadButton) {
-            downloadButton.disabled = false;
-          }
-
-          photoInput.value = "";
-        }
-      }
-    });
-  }
-
-  // 사진 제거
-  const removePhoto = $("removePhoto");
-
-  if (removePhoto && portraitContainer) {
-    removePhoto.addEventListener("click", () => {
-      photoVersion++;
-
-      if (downloadButton) {
-        downloadButton.disabled = false;
-      }
-
-      portraitContainer.innerHTML = placeholder;
-
-      if (photoInput) {
-        photoInput.value = "";
-      }
-
-      announce("사진을 제거했습니다.");
-    });
-  }
-
-  // 수정된 HTML 다운로드
-  // 다운로드한 HTML도 style.css, script.js와 같은 폴더에 두세요.
-  if (downloadButton) {
-    downloadButton.addEventListener("click", () => {
-      let url = null;
-
-      try {
-        updateContactButtons();
-
-        const clone = document.documentElement.cloneNode(true);
-
-        const clonedEditor = clone.querySelector("#editor");
-        const clonedToggle = clone.querySelector("#editToggle");
-        const clonedStatus = clone.querySelector("#status");
-
-        if (clonedEditor) {
-          clonedEditor.hidden = true;
-        }
-
-        if (clonedToggle) {
-          clonedToggle.setAttribute("aria-expanded", "false");
-        }
-
-        if (clonedStatus) {
-          clonedStatus.textContent = "";
-        }
-
-        for (const input of clone.querySelectorAll("input")) {
-          input.removeAttribute("value");
-        }
-
-        const blob = new Blob(
-          ["<!doctype html>\n" + clone.outerHTML],
-          { type: "text/html;charset=utf-8" }
-        );
-
-        url = URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "business-card.html";
-
-        document.body.append(link);
-
-        try {
-          link.click();
-        } finally {
-          link.remove();
-        }
-
-        announce("HTML 파일 다운로드를 시작했습니다.");
-      } catch {
-        announce("다운로드하지 못했습니다. 다시 시도해 주세요.");
-      } finally {
-        if (url) {
-          const downloadUrl = url;
-
-          setTimeout(() => {
-            URL.revokeObjectURL(downloadUrl);
-          }, 1000);
-        }
-      }
-    });
-  }
 }
 
-// HTML 요소가 준비된 후 실행
 if (document.readyState === "loading") {
   document.addEventListener(
     "DOMContentLoaded",
