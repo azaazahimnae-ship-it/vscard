@@ -14,27 +14,37 @@ function initializeBusinessCard() {
     if (status) status.textContent = message;
   };
 
+  const fields = [
+    ["nameInput", "cardName"],
+    ["roleInput", "cardRole"],
+    ["emailInput", "cardEmail"],
+    ["phoneInput", "cardPhone"]
+  ];
+
   function fillForm() {
-    for (const [input, card] of [
-      ["nameInput", "cardName"],
-      ["roleInput", "cardRole"],
-      ["emailInput", "cardEmail"],
-      ["phoneInput", "cardPhone"]
-    ]) {
-      $(input).value = $(card).textContent;
+    for (const [inputId, cardId] of fields) {
+      const input = $(inputId);
+      const card = $(cardId);
+
+      if (input && card) {
+        input.value = card.textContent.trim();
+      }
     }
   }
 
   let photoVersion = 0;
 
-  // JS만 교체해도 카드 효과가 적용되도록 스타일 추가
+  // 카드에 마우스를 올리면 위로 떠오르는 효과
+  // 별도의 CSS 수정 없이 적용됩니다.
   if (!$("cardInteractionStyles")) {
     const style = document.createElement("style");
     style.id = "cardInteractionStyles";
 
     style.textContent = `
       .card {
-        transition: transform 220ms ease, box-shadow 220ms ease;
+        transition:
+          transform 220ms ease,
+          box-shadow 220ms ease;
       }
 
       @media (hover: hover) and (pointer: fine) {
@@ -68,14 +78,14 @@ function initializeBusinessCard() {
     document.head.append(style);
   }
 
-  // 이메일 주소를 클립보드에 복사
+  // 클립보드 복사 함수
   async function copyText(text) {
     if (window.isSecureContext && navigator.clipboard?.writeText) {
       try {
         await navigator.clipboard.writeText(text);
         return;
       } catch {
-        // API 사용 실패 시 아래 대체 방법 시도
+        // Clipboard API가 실패하면 대체 방법 시도
       }
     }
 
@@ -94,8 +104,11 @@ function initializeBusinessCard() {
       textarea.select();
       textarea.setSelectionRange(0, textarea.value.length);
 
-      if (!document.execCommand("copy")) {
-        throw new Error("Copy failed");
+      if (
+        typeof document.execCommand !== "function" ||
+        !document.execCommand("copy")
+      ) {
+        throw new Error("Clipboard copy failed");
       }
     } finally {
       textarea.remove();
@@ -109,12 +122,14 @@ function initializeBusinessCard() {
     }
   }
 
+  // 이메일을 클릭하면 이메일 주소 복사
   const emailLink = $("emailLink");
 
   if (emailLink) {
     emailLink.title = "클릭하여 이메일 주소 복사";
 
     emailLink.addEventListener("click", async event => {
+      // 이메일 프로그램이 열리는 기본 동작 방지
       event.preventDefault();
 
       const email = $("cardEmail")?.textContent.trim();
@@ -139,7 +154,8 @@ function initializeBusinessCard() {
   fillForm();
 
   // 기본 프로필 사진 로딩 실패 처리
-  const initialPhoto = $("portrait").querySelector("img");
+  const portraitContainer = $("portrait");
+  const initialPhoto = portraitContainer?.querySelector("img");
 
   if (initialPhoto) {
     const initialVersion = photoVersion;
@@ -152,7 +168,7 @@ function initializeBusinessCard() {
         return;
       }
 
-      $("portrait").innerHTML = placeholder;
+      portraitContainer.innerHTML = placeholder;
 
       announce(
         "dog1.jpg를 찾지 못했습니다. HTML과 같은 폴더에 있는지, " +
@@ -170,211 +186,279 @@ function initializeBusinessCard() {
   }
 
   // 편집창 열기 및 닫기
-  $("editToggle").addEventListener("click", () => {
-    const open = $("editor").hidden;
+  const editToggle = $("editToggle");
+  const editor = $("editor");
 
-    $("editor").hidden = !open;
+  if (editToggle && editor) {
+    editToggle.addEventListener("click", () => {
+      const open = editor.hidden;
 
-    $("editToggle").setAttribute(
-      "aria-expanded",
-      String(open)
-    );
+      editor.hidden = !open;
+      editToggle.setAttribute("aria-expanded", String(open));
 
-    if (open) {
-      fillForm();
-      $("nameInput").focus();
-    }
-  });
+      if (open) {
+        fillForm();
+        $("nameInput")?.focus();
+      }
+    });
+  }
 
   // 명함 정보 적용
-  $("editor").addEventListener("submit", event => {
-    event.preventDefault();
+  if (editor) {
+    editor.addEventListener("submit", event => {
+      event.preventDefault();
 
-    const fields = [
-      ["nameInput", "cardName"],
-      ["roleInput", "cardRole"],
-      ["emailInput", "cardEmail"],
-      ["phoneInput", "cardPhone"]
-    ];
+      if (
+        fields.some(
+          ([inputId, cardId]) => !$(inputId) || !$(cardId)
+        )
+      ) {
+        announce("HTML의 입력창과 명함 요소 ID를 확인해 주세요.");
+        return;
+      }
 
-    if (fields.some(([id]) => !$(id).value.trim())) {
-      announce("모든 정보를 입력해 주세요.");
-      return;
-    }
+      if (fields.some(([id]) => !$(id).value.trim())) {
+        announce("모든 정보를 입력해 주세요.");
+        return;
+      }
 
-    for (const [input, card] of fields) {
-      $(card).textContent = $(input).value.trim();
-    }
+      for (const [inputId, cardId] of fields) {
+        $(cardId).textContent = $(inputId).value.trim();
+      }
 
-    $("emailLink").href =
-      "mailto:" +
-      encodeURIComponent($("cardEmail").textContent);
+      if (emailLink) {
+        emailLink.href =
+          "mailto:" +
+          encodeURIComponent($("cardEmail").textContent);
+      }
 
-    $("phoneLink").href =
-      "tel:" +
-      $("cardPhone").textContent.replace(/[^+0-9]/g, "");
+      const phoneLink = $("phoneLink");
 
-    document.title =
-      $("cardName").textContent + " · 웹명함";
+      if (phoneLink) {
+        phoneLink.href =
+          "tel:" +
+          $("cardPhone").textContent.replace(/[^+0-9]/g, "");
+      }
 
-    const image = $("portrait").querySelector("img");
+      document.title =
+        $("cardName").textContent + " · 웹명함";
 
-    if (image) {
-      image.alt =
-        $("cardName").textContent + " 프로필 사진";
-    }
+      const image = portraitContainer?.querySelector("img");
 
-    announce("적용했습니다. HTML 다운로드를 눌러 저장하세요.");
-  });
+      if (image) {
+        image.alt =
+          $("cardName").textContent + " 프로필 사진";
+      }
+
+      announce("적용했습니다. HTML 다운로드를 눌러 저장하세요.");
+    });
+  }
 
   // 사진 선택 및 데이터 변환
-  $("photoInput").addEventListener("change", async event => {
-    const file = event.target.files[0];
+  const photoInput = $("photoInput");
+  const downloadButton = $("download");
 
-    if (!file) return;
+  if (photoInput && portraitContainer) {
+    photoInput.addEventListener("change", async event => {
+      const file = event.target.files?.[0];
 
-    const version = ++photoVersion;
+      if (!file) return;
 
-    if (
-      !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
-      file.size > 10 * 1024 * 1024
-    ) {
-      announce("10MB 이하의 JPG, PNG, WebP 이미지를 선택해 주세요.");
-      event.target.value = "";
-      return;
-    }
-
-    $("download").disabled = true;
-
-    try {
-      const data = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-
-        reader.readAsDataURL(file);
-      });
-
-      const image = new Image();
-
-      await new Promise((resolve, reject) => {
-        image.onload = resolve;
-        image.onerror = reject;
-        image.src = data;
-      });
-
-      if (version !== photoVersion) return;
-
-      const canvas = document.createElement("canvas");
-
-      const side = Math.min(
-        640,
-        image.naturalWidth,
-        image.naturalHeight
-      );
-
-      canvas.width = side;
-      canvas.height = side;
-
-      const context = canvas.getContext("2d");
-
-      if (!context) {
-        throw new Error("Canvas unavailable");
+      if (
+        !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+        file.size > 10 * 1024 * 1024
+      ) {
+        announce("10MB 이하의 JPG, PNG, WebP 이미지를 선택해 주세요.");
+        event.target.value = "";
+        return;
       }
 
-      const crop = Math.min(
-        image.naturalWidth,
-        image.naturalHeight
-      );
+      const version = ++photoVersion;
 
-      context.drawImage(
-        image,
-        (image.naturalWidth - crop) / 2,
-        (image.naturalHeight - crop) / 2,
-        crop,
-        crop,
-        0,
-        0,
-        side,
-        side
-      );
+      if (downloadButton) {
+        downloadButton.disabled = true;
+      }
 
-      const portrait = new Image();
+      try {
+        const data = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
 
-      portrait.src = canvas.toDataURL("image/png");
-      portrait.alt =
-        $("cardName").textContent + " 프로필 사진";
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(
+            reader.error || new Error("File read failed")
+          );
+          reader.onabort = () => reject(
+            new Error("File read aborted")
+          );
 
-      $("portrait").replaceChildren(portrait);
+          reader.readAsDataURL(file);
+        });
 
-      announce(
-        "사진을 적용했습니다. 다운로드하면 사진도 함께 저장됩니다."
-      );
-    } catch {
-      if (version === photoVersion) {
-        announce(
-          "이미지를 읽지 못했습니다. 다른 사진을 선택해 주세요."
+        const image = new Image();
+
+        await new Promise((resolve, reject) => {
+          image.onload = resolve;
+          image.onerror = () => reject(
+            new Error("Image load failed")
+          );
+          image.src = data;
+        });
+
+        if (version !== photoVersion) return;
+
+        const canvas = document.createElement("canvas");
+
+        const side = Math.min(
+          640,
+          image.naturalWidth,
+          image.naturalHeight
         );
-      }
-    } finally {
-      if (version === photoVersion) {
-        $("download").disabled = false;
-      }
 
-      event.target.value = "";
-    }
-  });
+        if (side <= 0) {
+          throw new Error("Invalid image size");
+        }
+
+        canvas.width = side;
+        canvas.height = side;
+
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          throw new Error("Canvas unavailable");
+        }
+
+        const crop = Math.min(
+          image.naturalWidth,
+          image.naturalHeight
+        );
+
+        context.drawImage(
+          image,
+          (image.naturalWidth - crop) / 2,
+          (image.naturalHeight - crop) / 2,
+          crop,
+          crop,
+          0,
+          0,
+          side,
+          side
+        );
+
+        const portrait = new Image();
+
+        portrait.src = canvas.toDataURL("image/png");
+        portrait.alt =
+          ($("cardName")?.textContent.trim() || "사용자") +
+          " 프로필 사진";
+
+        portraitContainer.replaceChildren(portrait);
+
+        announce(
+          "사진을 적용했습니다. 다운로드하면 사진도 함께 저장됩니다."
+        );
+      } catch {
+        if (version === photoVersion) {
+          announce(
+            "이미지를 읽지 못했습니다. 다른 사진을 선택해 주세요."
+          );
+        }
+      } finally {
+        if (version === photoVersion) {
+          if (downloadButton) {
+            downloadButton.disabled = false;
+          }
+
+          photoInput.value = "";
+        }
+      }
+    });
+  }
 
   // 사진 제거
-  $("removePhoto").addEventListener("click", () => {
-    photoVersion++;
+  const removePhoto = $("removePhoto");
 
-    $("download").disabled = false;
-    $("portrait").innerHTML = placeholder;
-    $("photoInput").value = "";
+  if (removePhoto && portraitContainer) {
+    removePhoto.addEventListener("click", () => {
+      photoVersion++;
 
-    announce("사진을 제거했습니다.");
-  });
+      if (downloadButton) {
+        downloadButton.disabled = false;
+      }
+
+      portraitContainer.innerHTML = placeholder;
+
+      if (photoInput) {
+        photoInput.value = "";
+      }
+
+      announce("사진을 제거했습니다.");
+    });
+  }
 
   // 수정된 HTML 다운로드
-  $("download").addEventListener("click", () => {
-    const clone = document.documentElement.cloneNode(true);
+  if (downloadButton) {
+    downloadButton.addEventListener("click", () => {
+      let url = null;
 
-    clone.querySelector("#editor").hidden = true;
+      try {
+        const clone = document.documentElement.cloneNode(true);
+        const clonedEditor = clone.querySelector("#editor");
+        const clonedToggle = clone.querySelector("#editToggle");
+        const clonedStatus = clone.querySelector("#status");
 
-    clone.querySelector("#editToggle").setAttribute(
-      "aria-expanded",
-      "false"
-    );
+        if (clonedEditor) {
+          clonedEditor.hidden = true;
+        }
 
-    clone.querySelector("#status").textContent = "";
+        if (clonedToggle) {
+          clonedToggle.setAttribute("aria-expanded", "false");
+        }
 
-    for (const input of clone.querySelectorAll("input")) {
-      input.removeAttribute("value");
-    }
+        if (clonedStatus) {
+          clonedStatus.textContent = "";
+        }
 
-    const blob = new Blob(
-      ["<!doctype html>\n" + clone.outerHTML],
-      { type: "text/html;charset=utf-8" }
-    );
+        for (const input of clone.querySelectorAll("input")) {
+          input.removeAttribute("value");
+        }
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+        const blob = new Blob(
+          ["<!doctype html>\n" + clone.outerHTML],
+          { type: "text/html;charset=utf-8" }
+        );
 
-    link.href = url;
-    link.download = "business-card.html";
+        url = URL.createObjectURL(blob);
 
-    document.body.append(link);
-    link.click();
-    link.remove();
+        const link = document.createElement("a");
 
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 1000);
+        link.href = url;
+        link.download = "business-card.html";
 
-    announce("HTML 파일을 저장했습니다.");
-  });
+        document.body.append(link);
+
+        try {
+          link.click();
+        } finally {
+          link.remove();
+        }
+
+        announce("HTMLファイルのダウンロードを開始しました。".replace(
+          "HTMLファイルのダウンロードを開始しました。",
+          "HTML 파일 다운로드를 시작했습니다."
+        ));
+      } catch {
+        announce("다운로드하지 못했습니다. 다시 시도해 주세요.");
+      } finally {
+        if (url) {
+          const downloadUrl = url;
+
+          setTimeout(() => {
+            URL.revokeObjectURL(downloadUrl);
+          }, 1000);
+        }
+      }
+    });
+  }
 }
 
 // HTML 요소가 준비된 후 실행
