@@ -14,12 +14,12 @@
 <body>
   <main>
     <article class="card" aria-labelledby="cardName">
-      <!-- 원형 프로필 사진 -->
+      <!-- 프로필 사진 -->
       <div class="portrait" id="portrait">
         <img src="./dog1.jpg" alt="류난정 프로필 사진">
       </div>
 
-      <!-- 이름 및 직무 -->
+      <!-- 이름과 직무 -->
       <h1 id="cardName">류난정</h1>
       <p class="role" id="cardRole">GAME DEVELOPMENT PM</p>
 
@@ -81,14 +81,43 @@
         </a>
       </div>
 
-      <!-- script.js가 연락처 버튼 생성 -->
-      <div
-        id="contactActionButtons"
-        class="contact-action-buttons"
-      ></div>
+      <!-- 이메일 복사와 전화하기 -->
+      <div id="contactActionButtons" class="contact-action-buttons">
+        <button
+          type="button"
+          id="emailCopyButton"
+          class="contact-action"
+        >
+          이메일 복사
+        </button>
+
+        <a
+          id="callButton"
+          class="contact-action contact-action--phone"
+          href="tel:01072129874"
+        >
+          전화하기
+        </a>
+      </div>
+
+      <!-- GitHub 버튼 -->
+      <a
+        id="githubLink"
+        class="github-button"
+        href="https://github.com/azaazahimnae-ship-it"
+        target="_blank"
+        rel="noopener noreferrer"
+      >♥Github 보기</a>
     </article>
 
-    <div id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
+    <!-- 복사 결과가 있을 때만 표시 -->
+    <div
+      id="status"
+      class="status"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
   </main>
 </body>
 </html>

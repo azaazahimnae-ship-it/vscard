@@ -4,26 +4,14 @@ function initializeBusinessCard() {
   const $ = id => document.getElementById(id);
   const card = document.querySelector(".card");
 
-  if (!card) return;
-
-  // 같은 페이지에서 중복 실행 방지
-  if (card.dataset.businessCardReady === "true") return;
-  card.dataset.businessCardReady = "true";
-
-  function announce(message) {
-    const status = $("status");
-    if (status) status.textContent = message;
+  if (!card || card.dataset.businessCardReady === "true") {
+    return;
   }
 
-  const placeholder = `
-    <svg aria-hidden="true" viewBox="0 0 48 48"
-      fill="none" stroke="currentColor" stroke-width="1.6">
-      <circle cx="24" cy="17" r="8"></circle>
-      <path d="M8 41c0-10 7-16 16-16s16 6 16 16"></path>
-    </svg>
-  `;
+  card.dataset.businessCardReady = "true";
 
-  // 이전 JS에서 생성한 효과 스타일 제거
+  // 이전 코드가 HTML에 남긴 스타일 제거
+  // 모든 디자인과 hover 효과는 style.css에서 관리
   for (const id of [
     "cardInteractionStyles",
     "contactButtonStyles",
@@ -32,137 +20,31 @@ function initializeBusinessCard() {
     $(id)?.remove();
   }
 
-  // 다른 CSS보다 우선 적용되는 카드·버튼 효과
-  const style = document.createElement("style");
-  style.id = "businessCardInteractionStyles";
+  let status = $("status");
 
-  style.textContent = `
-    .card {
-      transition:
-        transform 220ms ease,
-        box-shadow 220ms ease;
-    }
+  if (!status) {
+    status = document.createElement("div");
+    status.id = "status";
+    status.className = "status";
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    status.setAttribute("aria-atomic", "true");
 
-    .card:hover {
-      transform: translateY(-8px);
-      box-shadow:
-        0 28px 70px #00000099,
-        0 0 24px #4c764b33;
-    }
+    card.insertAdjacentElement("afterend", status);
+  }
 
-    #contactActionButtons {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 26px;
-      overflow: visible;
-    }
+  function announce(message) {
+    status.textContent = message;
+  }
 
-    #contactActionButtons > .contact-action {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 48px;
-      margin: 0;
-      padding: 12px 10px;
-      border: 1px solid #4c764b;
-      border-radius: 12px;
-      background: #365b35;
-      color: #ffffff;
-      font: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 1.4;
-      text-align: center;
-      text-decoration: none;
-      cursor: pointer;
-
-      transform: translateY(0) !important;
-      transition:
-        transform 180ms ease,
-        box-shadow 180ms ease,
-        background-color 180ms ease,
-        border-color 180ms ease !important;
-    }
-
-    #contactActionButtons > .contact-action--phone {
-      background: #182019;
-      color: #edf2ed;
-    }
-
-    #contactActionButtons > .contact-action:not(:disabled):hover {
-      transform: translateY(-6px) !important;
-      background: #466f44;
-      border-color: #9bc498;
-      box-shadow: 0 10px 22px #00000080 !important;
-    }
-
-    #contactActionButtons > .contact-action--phone:hover {
-      background: #28392a;
-    }
-
-    #contactActionButtons > .contact-action:not(:disabled):active {
-      transform: translateY(-2px) !important;
-    }
-
-    #contactActionButtons > .contact-action:focus-visible {
-      outline: 3px solid #9bc498;
-      outline-offset: 4px;
-    }
-
-    #contactActionButtons > .contact-action:disabled,
-    #contactActionButtons > .contact-action[aria-disabled="true"] {
-      opacity: 0.5;
-      cursor: default;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .card {
-        transition: none;
-      }
-
-      .card:hover {
-        transform: none;
-      }
-
-      #contactActionButtons > .contact-action {
-        transition: none !important;
-      }
-
-      #contactActionButtons > .contact-action:hover,
-      #contactActionButtons > .contact-action:active {
-        transform: none !important;
-      }
-    }
-
-    @media print {
-      .card,
-      .card:hover {
-        transform: none;
-        box-shadow: none;
-      }
-
-      #contactActionButtons > .contact-action,
-      #contactActionButtons > .contact-action:hover,
-      #contactActionButtons > .contact-action:active {
-        transform: none !important;
-        box-shadow: none !important;
-      }
-    }
-  `;
-
-  document.head.append(style);
-
-  // 이메일 복사
+  // 클립보드 복사
   async function copyText(text) {
     if (window.isSecureContext && navigator.clipboard?.writeText) {
       try {
         await navigator.clipboard.writeText(text);
         return;
       } catch {
-        // 대체 복사 방법 시도
+        // 복사 API 실패 시 대체 방법 사용
       }
     }
 
@@ -185,7 +67,7 @@ function initializeBusinessCard() {
         typeof document.execCommand !== "function" ||
         !document.execCommand("copy")
       ) {
-        throw new Error("Copy failed");
+        throw new Error("Clipboard copy failed");
       }
     } finally {
       textarea.remove();
@@ -199,6 +81,7 @@ function initializeBusinessCard() {
     }
   }
 
+  // 이메일 주소 또는 이메일 복사 버튼 클릭
   async function copyEmail(event) {
     event.preventDefault();
 
@@ -221,51 +104,24 @@ function initializeBusinessCard() {
   }
 
   const emailLink = $("emailLink");
+  const emailCopyButton = $("emailCopyButton");
   const phoneLink = $("phoneLink");
+  const callButton = $("callButton");
+  const githubLink = $("githubLink");
 
   if (emailLink) {
     emailLink.title = "클릭하여 이메일 주소 복사";
     emailLink.addEventListener("click", copyEmail);
   }
 
-  // 연락처 버튼을 확실하게 새로 생성
-  const contactArea =
-    emailLink?.closest(".contact") ||
-    phoneLink?.closest(".contact") ||
-    card.querySelector(".contact");
-
-  let emailButton = null;
-  let phoneButton = null;
-
-  if (contactArea) {
-    let buttonArea = $("contactActionButtons");
-
-    if (!buttonArea) {
-      buttonArea = document.createElement("div");
-      buttonArea.id = "contactActionButtons";
-    }
-
-    buttonArea.className = "contact-action-buttons";
-
-    // 연락처 바로 아래로 배치
-    contactArea.insertAdjacentElement("afterend", buttonArea);
-
-    emailButton = document.createElement("button");
-    emailButton.type = "button";
-    emailButton.className = "contact-action";
-    emailButton.textContent = "이메일 복사";
-    emailButton.addEventListener("click", copyEmail);
-
-    phoneButton = document.createElement("a");
-    phoneButton.className =
-      "contact-action contact-action--phone";
-    phoneButton.textContent = "전화하기";
-
-    buttonArea.replaceChildren(emailButton, phoneButton);
+  if (emailCopyButton) {
+    emailCopyButton.addEventListener("click", copyEmail);
   }
 
+  // HTML에 표시된 연락처로 링크 설정
   function updateContactLinks() {
     const email = $("cardEmail")?.textContent.trim() || "";
+
     const phone = ($("cardPhone")?.textContent || "")
       .replace(/[^+0-9]/g, "");
 
@@ -277,9 +133,11 @@ function initializeBusinessCard() {
       }
     }
 
-    if (emailButton) emailButton.disabled = !email;
+    if (emailCopyButton) {
+      emailCopyButton.disabled = !email;
+    }
 
-    for (const link of [phoneLink, phoneButton]) {
+    for (const link of [phoneLink, callButton]) {
       if (!link) continue;
 
       if (phone) {
@@ -292,7 +150,9 @@ function initializeBusinessCard() {
     }
   }
 
-  for (const link of [phoneLink, phoneButton]) {
+  updateContactLinks();
+
+  for (const link of [phoneLink, callButton]) {
     if (!link) continue;
 
     link.addEventListener("click", event => {
@@ -300,26 +160,49 @@ function initializeBusinessCard() {
 
       if (link.getAttribute("aria-disabled") === "true") {
         event.preventDefault();
-        announce("전화번호를 입력해 주세요.");
+        announce("전화번호가 없습니다.");
       }
     });
   }
 
-  updateContactLinks();
-
-  // 프로필 사진을 찾지 못하면 기본 아이콘 표시
-  const portrait = $("portrait");
-  const initialPhoto = portrait?.querySelector("img");
-
-  if (initialPhoto) {
-    const handleFailure = () => {
-      if (!initialPhoto.isConnected) return;
-      portrait.innerHTML = placeholder;
-    };
-    initialPhoto.addEventListener("error", handleFailure, { once: true });
-    if (initialPhoto.complete && !initialPhoto.naturalWidth) handleFailure();
+  // GitHub 프로필을 새 탭으로 열기
+  // 링크의 기본 동작을 사용하므로 복사 기능과 충돌하지 않음
+  if (githubLink) {
+    githubLink.href =
+      "https://github.com/azaazahimnae-ship-it";
+    githubLink.target = "_blank";
+    githubLink.rel = "noopener noreferrer";
   }
 
+  // 사진을 찾지 못하면 기본 프로필 그림 표시
+  const portrait = $("portrait");
+  const photo = portrait?.querySelector("img");
+
+  if (photo) {
+    const handlePhotoError = () => {
+      if (!photo.isConnected) return;
+
+      portrait.innerHTML = `
+        <svg aria-hidden="true" viewBox="0 0 48 48"
+          fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="24" cy="17" r="8"></circle>
+          <path d="M8 41c0-10 7-16 16-16s16 6 16 16"></path>
+        </svg>
+      `;
+
+      announce(
+        "프로필 사진을 찾지 못했습니다. dog1.jpg를 같은 폴더에 두세요."
+      );
+    };
+
+    photo.addEventListener("error", handlePhotoError, {
+      once: true
+    });
+
+    if (photo.complete && !photo.naturalWidth) {
+      handlePhotoError();
+    }
+  }
 }
 
 if (document.readyState === "loading") {
